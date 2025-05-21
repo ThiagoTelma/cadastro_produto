@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const FormularioPage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -36,7 +37,6 @@ class _FormularioPageState extends State<FormularioPage> {
   final TextEditingController _precoVendaController = TextEditingController();
   final TextEditingController _estoqueController = TextEditingController();
   final TextEditingController _descricaoController = TextEditingController();
-  final TextEditingController _categoriaController = TextEditingController();
   final TextEditingController _imagemController = TextEditingController();
 
   // Campos de seleção
@@ -45,6 +45,37 @@ class _FormularioPageState extends State<FormularioPage> {
   double _desconto = 0.0;
 
   List<Map<String, dynamic>> dadosFormulario = [];
+
+  // Função de validação antes de enviar
+  void _validarFormulario() {
+    if (_nomeController.text.isEmpty) {
+      _exibirSnackbar("Nome do produto é obrigatório!");
+      return;
+    }
+    if (_precoCompraController.text.isEmpty) {
+      _exibirSnackbar("Preço de compra é obrigatório!");
+      return;
+    }
+    if (_precoVendaController.text.isEmpty) {
+      _exibirSnackbar("Preço de venda é obrigatório!");
+      return;
+    }
+    if (_estoqueController.text.isEmpty) {
+      _exibirSnackbar("A quantidade em estoque é obrigatório!");
+      return;
+    }
+    if (_descricaoController.text.isEmpty) {
+      _exibirSnackbar("Descrição é obrigatório!");
+      return;
+    }
+  }
+
+  //Função para exibir Snackbar
+  void _exibirSnackbar(String mensagem) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(mensagem), duration: const Duration(seconds: 2)),
+    );
+  }
 
   void dropdownCallback(String? selectedValue) {
     if (selectedValue is String) {
@@ -84,7 +115,7 @@ class _FormularioPageState extends State<FormularioPage> {
               _buildTextField(
                 controller: _nomeController,
                 labelText: 'Nome do Produto',
-                hintText: 'Digite o nome do produto',
+                hintText: '',
               ),
               const SizedBox(height: 10),
               // Preço de Compra
@@ -160,6 +191,64 @@ class _FormularioPageState extends State<FormularioPage> {
                 controller: _imagemController,
                 labelText: 'URL da Imagem',
                 hintText: '',
+              ),
+              const SizedBox(height: 10),
+              CheckboxListTile(
+                title: const Text("Produto ativo"),
+                value: _ativo,
+                onChanged: (ativo) {
+                  setState(() {
+                    _ativo = ativo!;
+                  });
+                },
+              ),
+
+              const SizedBox(height: 10),
+              SwitchListTile(
+                title: const Text("Produto em Promoção"),
+                value: _emPromocao,
+                onChanged: (bool? promocao) {
+                  setState(() {
+                    _emPromocao = promocao!;
+                  });
+                },
+              ),
+              if (_emPromocao) ...[
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text("Desconto (%) - Atual: $_desconto %"),
+                ),
+                Slider(
+                  value: _desconto,
+                  min: 0,
+                  max: 100,
+                  divisions: 10,
+                  label: _desconto.round().toString(),
+                  onChanged: (double value) {
+                    setState(() {
+                      _desconto = value;
+                    });
+                  },
+                ),
+              ] else
+                ...[],
+              const SizedBox(height: 30),
+
+              ElevatedButton(
+                onPressed: () {
+                  _validarFormulario();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 50,
+                    vertical: 15,
+                  ),
+                ),
+                child: const Text(
+                  "Cadastrar Produto",
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
               ),
             ],
           ),
