@@ -29,8 +29,7 @@ class FormularioPage extends StatefulWidget {
 }
 
 class _FormularioPageState extends State<FormularioPage> {
-  String _dropdownValue = 'Eletrônicos';
-
+  String categoriaProduto = 'Roupas';
   // Campos de Texto
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _precoCompraController = TextEditingController();
@@ -68,19 +67,47 @@ class _FormularioPageState extends State<FormularioPage> {
       _exibirSnackbar("Descrição é obrigatório!");
       return;
     }
+    dadosFormulario.add({
+      "nome": _nomeController.text,
+      "preco_compra": _precoCompraController.text,
+      "preco_venda": _precoVendaController.text,
+      "estoque": _estoqueController.text,
+      "descricao": _descricaoController.text,
+      "imagem": _imagemController.text,
+      "produto_ativo": _ativo,
+      "em_promocao": _emPromocao,
+      "desconto": _emPromocao ? _desconto : null,
+    });
+
+    //Navega para a tela de detalhes
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DetalhesPage(dadosFormulario: dadosFormulario),
+      ),
+    );
   }
 
   //Função para exibir Snackbar
   void _exibirSnackbar(String mensagem) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensagem), duration: const Duration(seconds: 2)),
+      SnackBar(
+        content: Center(
+          child: Text(
+            mensagem,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ),
+        duration: const Duration(seconds: 2),
+        backgroundColor: Colors.red,
+      ),
     );
   }
 
   void dropdownCallback(String? selectedValue) {
     if (selectedValue is String) {
       setState(() {
-        _dropdownValue = selectedValue;
+        categoriaProduto = selectedValue;
       });
     }
   }
@@ -157,31 +184,28 @@ class _FormularioPageState extends State<FormularioPage> {
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
-                    items: [
-                      DropdownMenuItem(
-                        value: 'Eletrônicos',
-                        child: Text('Eletrônicos'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Alimentos',
-                        child: Text('Alimentos'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Saúde e beleza',
-                        child: Text('Saúde e beleza'),
-                      ),
-                      DropdownMenuItem(value: 'Livros', child: Text('Livros')),
-                      DropdownMenuItem(
-                        value: 'Roupas e acessórios',
-                        child: Text('Roupas e acessórios'),
-                      ),
-                    ],
-                    value: _dropdownValue,
-                    onChanged: dropdownCallback,
+                    value: categoriaProduto,
                     isExpanded: true,
-                    icon: Icon(Icons.arrow_drop_down, color: Colors.black),
-                    style: TextStyle(color: Colors.black, fontSize: 16),
-                    dropdownColor: Colors.white,
+                    items:
+                        [
+                              'Eletrônicos',
+                              'Roupas',
+                              'Calçados',
+                              'Alimentos',
+                              'Livros',
+                            ]
+                            .map(
+                              (cat) => DropdownMenuItem(
+                                value: cat,
+                                child: Text(cat),
+                              ),
+                            )
+                            .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        categoriaProduto = value!;
+                      });
+                    },
                   ),
                 ),
               ),
@@ -287,6 +311,107 @@ class _FormularioPageState extends State<FormularioPage> {
             color: Colors.purple, // Cor quando o campo está em foco
             width: 1.5,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class DetalhesPage extends StatelessWidget {
+  final List<Map<String, dynamic>> dadosFormulario;
+
+  const DetalhesPage({super.key, required this.dadosFormulario});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Detalhes do Cadastro"),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      backgroundColor: Colors.grey[200],
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView.builder(
+          itemCount: dadosFormulario.length,
+          itemBuilder: (context, index) {
+            final cadastro = dadosFormulario[index];
+            return Card(
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              elevation: 8,
+              shadowColor: Colors.black.withOpacity(0.4),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.label, color: Colors.black),
+                        const SizedBox(width: 10),
+                        Text(
+                          '${cadastro['nome']}',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Divider(color: Colors.grey[400], thickness: 1),
+                    Image.network('${cadastro['imagem']}'),
+                    Divider(color: Colors.grey[400], thickness: 1),
+                    Row(
+                      children: [
+                        Icon(Icons.shopping_cart_sharp, color: Colors.grey),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Preço de compra: ${cadastro['preco_compra']}',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(Icons.attach_money, color: Colors.grey),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Preço de venda: ${cadastro['preco_venda']}',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(Icons.inventory, color: Colors.grey),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Quantidade: ${cadastro['estoque']}',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
