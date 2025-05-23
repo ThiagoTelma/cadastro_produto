@@ -74,7 +74,7 @@ class _FormularioPageState extends State<FormularioPage> {
       "estoque": _estoqueController.text,
       "descricao": _descricaoController.text,
       "imagem": _imagemController.text,
-      "produto_ativo": _ativo,
+      "ativo": _ativo,
       "em_promocao": _emPromocao,
       "desconto": _emPromocao ? _desconto : null,
     });
@@ -329,6 +329,17 @@ class DetalhesPage extends StatelessWidget {
         title: const Text("Detalhes do Cadastro"),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => FormularioPage()),
+          );
+        },
+        label: Text('Novo produto', style: TextStyle(color: Colors.white)),
+        icon: const Icon(Icons.add, color: Colors.white),
+        backgroundColor: Colors.deepPurple,
+      ),
       backgroundColor: Colors.grey[200],
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -350,7 +361,7 @@ class DetalhesPage extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.label, color: Colors.black),
+                        Icon(Icons.label, color: Colors.deepPurpleAccent),
                         const SizedBox(width: 10),
                         Text(
                           '${cadastro['nome']}',
@@ -367,7 +378,10 @@ class DetalhesPage extends StatelessWidget {
                     Divider(color: Colors.grey[400], thickness: 1),
                     Row(
                       children: [
-                        Icon(Icons.shopping_cart_sharp, color: Colors.grey),
+                        Icon(
+                          Icons.shopping_cart_sharp,
+                          color: Colors.deepPurpleAccent,
+                        ),
                         const SizedBox(width: 10),
                         Text(
                           'Preço de compra: ${cadastro['preco_compra']}',
@@ -381,7 +395,10 @@ class DetalhesPage extends StatelessWidget {
                     ),
                     Row(
                       children: [
-                        Icon(Icons.attach_money, color: Colors.grey),
+                        Icon(
+                          Icons.attach_money,
+                          color: Colors.deepPurpleAccent,
+                        ),
                         const SizedBox(width: 10),
                         Text(
                           'Preço de venda: ${cadastro['preco_venda']}',
@@ -395,7 +412,7 @@ class DetalhesPage extends StatelessWidget {
                     ),
                     Row(
                       children: [
-                        Icon(Icons.inventory, color: Colors.grey),
+                        Icon(Icons.inventory, color: Colors.deepPurpleAccent),
                         const SizedBox(width: 10),
                         Text(
                           'Quantidade: ${cadastro['estoque']}',
@@ -407,6 +424,7 @@ class DetalhesPage extends StatelessWidget {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 10),
                   ],
                 ),
               ),
